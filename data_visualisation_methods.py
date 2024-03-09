@@ -2,6 +2,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import math
 import pandas as pd
+from sklearn.ensemble import IsolationForest
 
 def plot_numerical_columns_distribution(df, n_rows, n_cols):
     numerical_columns = df.select_dtypes(include=['int64', 'float64']).columns.tolist()
@@ -48,3 +49,40 @@ def plot_categorical_columns(df, n_cols, n_rows):
 
     plt.tight_layout()
     plt.show()
+    
+def target_countplot(df,column,target):
+    plt.figure(figsize=(12, 6))
+
+    top_categories = df[column].value_counts().nlargest(40)
+    sns.countplot(x=column, data=df, order=top_categories.index, hue=target)
+
+    plt.xticks(rotation=90, ha='right')
+    plt.xlabel('Data')
+    plt.ylabel('Count')
+    plt.title(f'Count Plot for {column} column')
+    plt.show()
+
+
+def plot_outliers_boxplot(df, n_cols=2):
+    numerical_columns = df.select_dtypes(include=['int64', 'float64']).columns.tolist()
+    figsize=(16, 6)
+    num_rows = math.ceil(len(numerical_columns) / n_cols)
+    fig, axs = plt.subplots(num_rows, n_cols, figsize=(figsize[0], figsize[1]*num_rows))
+
+    row = 0
+    for i, column in enumerate(numerical_columns):
+        col = i % n_cols
+
+        sns.boxplot(y=column, data=df, ax=axs[row, col], width=0.4)
+        axs[row, col].set_title(f'Boxplot of {column}')
+        axs[row, col].set_ylabel('Values')
+
+        if (i + 1) % n_cols == 0:
+            row += 1
+
+    if len(numerical_columns) % n_cols != 0:
+        axs.flatten()[-1].axis('off')
+
+    plt.tight_layout()
+    plt.show()
+    
